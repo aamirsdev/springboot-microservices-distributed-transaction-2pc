@@ -47,13 +47,13 @@ public class OrderService {
 
     @Transactional
     public Order createOrder(Order order) {
-        DistributedTransaction transaction = restTemplate.postForObject("http://transaction-server/transactions", new DistributedTransaction(), DistributedTransaction.class);
+        DistributedTransaction transaction = restTemplate.postForObject("http://localhost:8888/transactions", new DistributedTransaction(), DistributedTransaction.class);
         log.info("Trasaction created: {}", transaction);
         Order savedOrder = orderRepository.save(order);
         Product product = updateProduct(transaction.getId(), savedOrder);
         log.info("Product updated: {}", product);
         int totalAmount = product.getPrice() * order.getQuantity();
-        Account account = restTemplate.getForObject("http://account-service/accounts/customer/{customerId}", Account.class, order.getCustomerId());
+        Account account = restTemplate.getForObject("http://localhost:8080/accounts/customer/{customerId}", Account.class, order.getCustomerId());
         log.info("Account :{}", account);
         if (account.getBalance() >= totalAmount) {
             log.info("Withdrawing money: {}", totalAmount);
@@ -63,7 +63,7 @@ public class OrderService {
         }
         eventPublisher.publishEvent(new OrderTransactionEvent(transaction.getId()));
         int number = random.nextInt();
-        if (number % 2 == 0) {
+        if (order.getQuantity() == 999) {
             throw new OrderProcessingException("Error while processing your order");
         }
         return savedOrder;
@@ -73,7 +73,7 @@ public class OrderService {
         addTransactionParticipant(transactionId, "product-service", DistributedTransactionStatus.NEW);
         HttpEntity<Void> requestEntity = new HttpEntity<>(prepareHeaders(transactionId));
         return restTemplate.exchange(
-                "http://product-service/products/{id}/quantity/{quantity}",
+                "http://localhost:8082/products/{id}/quantity/{quantity}",
                 HttpMethod.PUT,
                 requestEntity,
                 Product.class,
@@ -84,12 +84,12 @@ public class OrderService {
     protected Account withdraw(String transactionId, Long accountId, int amount) {
         addTransactionParticipant(transactionId, "account-service", DistributedTransactionStatus.NEW);
         HttpEntity<Void> requestEntity = new HttpEntity<>(prepareHeaders(transactionId));
-        return restTemplate.exchange("http://account-service/accounts/{id}/withdrawl/{amount}", HttpMethod.PUT, requestEntity, Account.class, accountId, amount).getBody();
+        return restTemplate.exchange("http://localhost:8080/accounts/{id}/withdrawl/{amount}", HttpMethod.PUT, requestEntity, Account.class, accountId, amount).getBody();
     }
     
     protected void addTransactionParticipant(String transactionId, String serviceId, DistributedTransactionStatus status) {
         HttpEntity<DistributedTransactionParticipant> requestEntity = new HttpEntity<>(new DistributedTransactionParticipant(serviceId, status));
-        restTemplate.exchange("http://transaction-server/transactions/{id}/participants", HttpMethod.PUT, requestEntity, Object.class, transactionId);
+        restTemplate.exchange("http://localhost:8888/transactions/{id}/participants", HttpMethod.PUT, requestEntity, Object.class, transactionId);
     }
 
     private HttpHeaders prepareHeaders(String transactionId) {

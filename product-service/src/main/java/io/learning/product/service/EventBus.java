@@ -41,7 +41,10 @@ public class EventBus {
 
     public ProductTransactionEvent receiveEvent(String eventId) {
         ProductTransactionEvent event = null;
-        while (event == null) {
+
+        int count = 3000;
+        while (count > 0) {
+        //while (event == null) {
             event = events.stream().filter(evnt -> evnt.getTransactionId().equals(eventId)).findAny().orElse(null);
             events.remove(event);
             if (event != null) {
@@ -52,6 +55,7 @@ public class EventBus {
             } catch (InterruptedException ex) {
                 log.error("Error while received event for: {}, Cause:{}", eventId, ex);
             }
+            --count;
         }
         return event;
     }

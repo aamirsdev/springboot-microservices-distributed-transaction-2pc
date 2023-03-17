@@ -31,7 +31,7 @@ public class ProductTransactionListener implements TransactionListener<ProductTr
     public void handleEvent(ProductTransactionEvent event) throws ProductProcessingException {
         log.debug("Handling event before commit: {}", event);
         eventBus.sendEvent(event);
-
+        //handleAfterCompletion(event);
         DistributedTransaction transaction = null;
         int count = 3000;
         while (count > 0) {
@@ -58,7 +58,7 @@ public class ProductTransactionListener implements TransactionListener<ProductTr
     public void handleAfterRollback(ProductTransactionEvent event) {
         log.debug("Handling event after rollback : {}", event);
         restTemplate.put(
-                "http://transaction-server/transactions/{transactionId}/participants/{serviceId}/status/{status}",
+                "http://localhost:8888/transactions/{transactionId}/participants/{serviceId}/status/{status}",
                 null,
                 event.getTransactionId(),
                 "product-service",
@@ -70,7 +70,7 @@ public class ProductTransactionListener implements TransactionListener<ProductTr
     public void handleAfterCompletion(ProductTransactionEvent event) {
         log.debug("Handling event after completion : {}", event);
         restTemplate.put(
-                "http://transaction-server/transactions/{transactionId}/participants/{serviceId}/status/{status}",
+                "http://localhost:8888/transactions/{transactionId}/participants/{serviceId}/status/{status}",
                 null,
                 event.getTransactionId(),
                 "product-service",

@@ -19,4 +19,6 @@ public class Product {
 
     private int price;
 
+    private long dummyId;
+
 }

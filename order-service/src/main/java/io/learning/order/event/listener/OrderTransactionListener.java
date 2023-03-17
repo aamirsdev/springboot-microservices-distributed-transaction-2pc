@@ -35,7 +35,7 @@ public class OrderTransactionListener implements TransactionListener<OrderTransa
     public void handleAfterRollback(OrderTransactionEvent event) {
         log.debug("Handling event after rollback : {}", event);
         restTemplate.put(
-                "http://transaction-server/transactions/{id}/finish/{status}",
+                "http://localhost:8888/transactions/{id}/finish/{status}",
                 null,
                 event.getTransactionId(),
                 DistributedTransactionStatus.ROLLBACK);
@@ -46,7 +46,7 @@ public class OrderTransactionListener implements TransactionListener<OrderTransa
     public void handleAfterCompletion(OrderTransactionEvent event) {
         log.debug("Handling event after completion : {}", event);
         restTemplate.put(
-                "http://transaction-server/transactions/{id}/finish/{status}",
+                "http://localhost:8888/transactions/{id}/finish/{status}",
                 null,
                 event.getTransactionId(),
                 DistributedTransactionStatus.CONFIRMED);

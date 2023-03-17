@@ -2,6 +2,8 @@ package io.learning.product.service;
 
 import java.util.Optional;
 
+import io.learning.product.domain.DummyEntity;
+import io.learning.product.repository.DummyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
@@ -26,6 +28,9 @@ public class ProductService {
     @Autowired
     private ApplicationEventPublisher eventPublisher;
 
+    @Autowired
+    DummyRepository dummyRepository;
+
     @Transactional
     public Product createProduct(Product product) {
         return ProductMapper.map(productRepository.save(ProductMapper.map(product)));
@@ -36,16 +41,20 @@ public class ProductService {
     }
 
     @Async
-    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @Transactional(isolation = Isolation.SERIALIZABLE,rollbackFor = ProductProcessingException.class)
     public void updateQuantity(String transactionId, Long productId, int quantity) {
         log.info("Updating product quantity with id: {}, quantity: {}", productId, quantity);
+        DummyEntity dummyEntity = new DummyEntity();
+        dummyEntity.setName(transactionId);
+        Long dummyId = dummyRepository.save(dummyEntity).getId();
         findById(productId).ifPresent(prod -> {
+            prod.setDummyId(dummyId);
+            eventPublisher.publishEvent(new ProductTransactionEvent(transactionId, prod));
             if (prod.getQuantity() < quantity) {
                 throw new ProductProcessingException("Insufficient product quantity. Available: " + prod.getQuantity() + ", Demand: " + quantity);
             }
             prod.setQuantity(prod.getQuantity() - quantity);
-            eventPublisher.publishEvent(new ProductTransactionEvent(transactionId, prod));
-            productRepository.save(ProductMapper.map(prod));
+            productRepository.saveAndFlush(ProductMapper.map(prod));
         });
     }
 

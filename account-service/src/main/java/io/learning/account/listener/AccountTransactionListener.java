@@ -40,7 +40,7 @@ public class AccountTransactionListener implements TransactionListener<AccountTr
     public void handleEvent(AccountTransactionEvent event) throws AccountProcessingException {
         log.debug("Handling event before commit: {}", event);
         eventBus.sendEvent(event);
-
+//        handleAfterCompletion(event);
         DistributedTransaction transaction = null;
         int count = 3000;
         log.info("Waiting for receiving transaction.");
@@ -68,7 +68,7 @@ public class AccountTransactionListener implements TransactionListener<AccountTr
     public void handleAfterRollback(AccountTransactionEvent event) {
         log.debug("Updating transaction[{}] status to : {} for account-service", event.getTransactionId(), TO_ROLLBACK);
         restTemplate.put(
-                "http://transaction-server/transactions/{transactionId}/participants/{serviceId}/status/{status}",
+                "http://localhost:8888/transactions/{transactionId}/participants/{serviceId}/status/{status}",
                 null,
                 event.getTransactionId(),
                 "account-service",
@@ -80,7 +80,7 @@ public class AccountTransactionListener implements TransactionListener<AccountTr
     public void handleAfterCompletion(AccountTransactionEvent event) {
         log.debug("Updating transaction[{}] status to: {} for account-service.", event.getTransactionId(), CONFIRMED);
         restTemplate.put(
-                "http://transaction-server/transactions/{transactionId}/participants/{serviceId}/status/{status}",
+                "http://localhost:8888/transactions/{transactionId}/participants/{serviceId}/status/{status}",
                 null,
                 event.getTransactionId(),
                 "account-service",
