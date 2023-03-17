@@ -8,11 +8,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
     hibernate.ddl-auto: update
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: root
-    password: Inno@123
+
 server:
   port: 8080
   

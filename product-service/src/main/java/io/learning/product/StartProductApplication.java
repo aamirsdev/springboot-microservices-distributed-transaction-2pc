@@ -2,7 +2,6 @@ package io.learning.product;
 
 import io.learning.core.domain.Product;
 import io.learning.product.service.ProductService;
-import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -15,7 +14,6 @@ import java.util.Optional;
 //@EnableDiscoveryClient
 @SpringBootApplication
 @EnableAsync
-@EnableRabbit
 public class StartProductApplication implements CommandLineRunner {
 
     public static void main(String[] args) {

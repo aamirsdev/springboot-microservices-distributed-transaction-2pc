@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -42,8 +41,6 @@ public class TransactionServerController {
     @Autowired
     private DistributedTransactionRepo repository;
 
-    @Autowired
-    private RabbitTemplate rabbitTemplate;
 
     @PostMapping
     @Operation(summary = "Add a new transaction")

@@ -2,8 +2,6 @@ package io.learning.transaction;
 
 import io.learning.core.domain.DistributedTransaction;
 import io.learning.core.domain.DistributedTransactionStatus;
-import org.springframework.amqp.core.TopicExchange;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -22,13 +20,6 @@ public class StartTransactionServerApplication implements CommandLineRunner {
         SpringApplication.run(StartTransactionServerApplication.class, args);
     }
 
-    @Bean
-    public TopicExchange topic() {
-        return new TopicExchange("txn-events");
-    }
-
-    @Autowired
-    private RabbitTemplate rabbitTemplate;
 
     @Override
     public void run(String... args) throws Exception {
