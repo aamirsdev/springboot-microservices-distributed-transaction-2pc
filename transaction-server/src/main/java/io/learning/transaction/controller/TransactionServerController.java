@@ -21,6 +21,7 @@ import io.learning.transaction.repo.DistributedTransactionRepo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * 
@@ -39,8 +40,8 @@ public class TransactionServerController {
     @Autowired
     private DistributedTransactionRepo repository;
 
-    @Autowired
-    private RabbitTemplate rabbitTemplate;
+
+    private RestTemplate restTemplate = new RestTemplate();
 
     @PostMapping
     @Operation(summary = "Add a new transaction")
@@ -102,7 +103,10 @@ public class TransactionServerController {
     }
 
     protected void publishEvent(DistributedTransaction transaction) {
-        rabbitTemplate.convertAndSend("txn-events", "txn-events", transaction);
+//        rabbitTemplate.convertAndSend("txn-events", "txn-events", transaction);
+        restTemplate.postForEntity("http://localhost:8082/publish/product",transaction,Object.class);
+        restTemplate.postForEntity("http://localhost:8080/publish/account",transaction,Object.class);
+        restTemplate.postForEntity("http://localhost:8081/publish/order",transaction,Object.class);
     }
 
 }

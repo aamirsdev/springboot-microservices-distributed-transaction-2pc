@@ -11,19 +11,21 @@ import org.springframework.stereotype.Component;
 import io.learning.core.domain.DistributedTransaction;
 import io.learning.product.service.EventBus;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Component
+@RestController("/publish/product")
 @Slf4j
 public class DistributedTransactionEventListener {
 
     @Autowired
     private EventBus eventBus;
-
-    @RabbitListener(bindings = { 
-                @QueueBinding(value = @Queue("txn-events-product"),
-                  exchange = @Exchange(type = ExchangeTypes.TOPIC, name = "txn-events"),
-                  key="txn-events")
-    })
+//    @RabbitListener(bindings = {
+//      @QueueBinding(value = @Queue("txn-events-product"),
+//        exchange = @Exchange(type = ExchangeTypes.TOPIC, name = "txn-events"),
+//        key="txn-events")
+//    })
+    @PostMapping
     public void onMessage(DistributedTransaction transaction) {
         log.debug("Transaction message received: {}", transaction);
         eventBus.sendTransaction(transaction);
