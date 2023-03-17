@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,8 +42,8 @@ public class TransactionServerController {
     @Autowired
     private DistributedTransactionRepo repository;
 
-
-    private RestTemplate restTemplate = new RestTemplate();
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     @PostMapping
     @Operation(summary = "Add a new transaction")
@@ -103,10 +105,11 @@ public class TransactionServerController {
     }
 
     protected void publishEvent(DistributedTransaction transaction) {
-//        rabbitTemplate.convertAndSend("txn-events", "txn-events", transaction);
-        restTemplate.postForEntity("http://localhost:8082/publish/product",transaction,Object.class);
-        restTemplate.postForEntity("http://localhost:8080/publish/account",transaction,Object.class);
-        restTemplate.postForEntity("http://localhost:8081/publish/order",transaction,Object.class);
+        RestTemplate restTemplate = new RestTemplate();
+        final HttpEntity<DistributedTransaction> requestEntity = new HttpEntity<>(transaction);
+        restTemplate.exchange("http://localhost:8082/publish/product", HttpMethod.POST, requestEntity, Object.class);
+        restTemplate.exchange("http://localhost:8080/publish/account", HttpMethod.POST, requestEntity, Object.class);
+        restTemplate.exchange("http://localhost:8081/publish/order", HttpMethod.POST, requestEntity, Object.class);
     }
 
 }

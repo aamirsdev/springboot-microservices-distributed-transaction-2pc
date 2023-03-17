@@ -29,7 +29,5 @@ public class StartProductApplication implements CommandLineRunner {
 //        Optional<Product> p = service.findById(1l);
 //        System.out.println(p.isPresent());
 
-//        service.updateQuantity("1", 1l,10000);
-//        System.out.println("Done");
     }
 }

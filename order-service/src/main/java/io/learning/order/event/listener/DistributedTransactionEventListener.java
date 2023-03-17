@@ -12,9 +12,10 @@ import io.learning.core.domain.DistributedTransaction;
 import io.learning.order.service.EventBus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController("/publish/order")
+@RestController
 @Slf4j
 public class DistributedTransactionEventListener {
 
@@ -24,8 +25,8 @@ public class DistributedTransactionEventListener {
 //    @RabbitListener(bindings = {
 //                @QueueBinding(value = @Queue("txn-events-order"), exchange = @Exchange(type = ExchangeTypes.TOPIC, name = "txn-events"), key="txn-events")
 //    })
-    @PostMapping
-    public void onMessage(DistributedTransaction transaction) {
+    @PostMapping("/publish/order")
+    public void onMessage(@RequestBody DistributedTransaction transaction) {
         log.debug("Transaction message received: {}", transaction);
         eventBus.sendTransaction(transaction);
     }
